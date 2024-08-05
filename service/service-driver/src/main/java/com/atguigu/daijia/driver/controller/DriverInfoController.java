@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "司机API接口管理")
 @RestController
-@RequestMapping(value="/driver/info")
+@RequestMapping(value = "/driver/info")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class DriverInfoController {
 

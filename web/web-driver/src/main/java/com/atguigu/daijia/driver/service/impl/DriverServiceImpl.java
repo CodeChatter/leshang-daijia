@@ -46,12 +46,12 @@ public class DriverServiceImpl implements DriverService {
         Long driverId = longResult.getData();
 
         //token字符串
-        String token = UUID.randomUUID().toString().replaceAll("-","");
+        String token = UUID.randomUUID().toString().replaceAll("-", "");
         //放到redis，设置过期时间
         redisTemplate.opsForValue().set(RedisConstant.USER_LOGIN_KEY_PREFIX + token,
-                                             driverId.toString(),
-                                             RedisConstant.USER_LOGIN_KEY_TIMEOUT,
-                                             TimeUnit.SECONDS);
+                driverId.toString(),
+                RedisConstant.USER_LOGIN_KEY_TIMEOUT,
+                TimeUnit.SECONDS);
         return token;
     }
 
@@ -95,18 +95,18 @@ public class DriverServiceImpl implements DriverService {
     public Boolean startService(Long driverId) {
         //1 判断完成认证
         DriverLoginVo driverLoginVo = driverInfoFeignClient.getDriverLoginInfo(driverId).getData();
-        if(driverLoginVo.getAuthStatus()!=2) {
+        if (driverLoginVo.getAuthStatus() != 2) {
             throw new GuiguException(ResultCodeEnum.AUTH_ERROR);
         }
 
         //2 判断当日是否人脸识别
         Boolean isFace = driverInfoFeignClient.isFaceRecognition(driverId).getData();
-        if(!isFace) {
+        if (!isFace) {
             throw new GuiguException(ResultCodeEnum.FACE_ERROR);
         }
 
         //3 更新订单状态 1 开始接单
-        driverInfoFeignClient.updateServiceStatus(driverId,1);
+        driverInfoFeignClient.updateServiceStatus(driverId, 1);
 
         //4 删除redis司机位置信息
         locationFeignClient.removeDriverLocation(driverId);
@@ -120,7 +120,7 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public Boolean stopService(Long driverId) {
         //更新司机的接单状态 0
-        driverInfoFeignClient.updateServiceStatus(driverId,0);
+        driverInfoFeignClient.updateServiceStatus(driverId, 0);
 
         //删除司机位置信息
         locationFeignClient.removeDriverLocation(driverId);
@@ -129,4 +129,5 @@ public class DriverServiceImpl implements DriverService {
         newOrderFeignClient.clearNewOrderQueueData(driverId);
         return true;
     }
+
 }
